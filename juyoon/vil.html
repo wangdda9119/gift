@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>슈팅 게임</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow: hidden;
+            background-color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            height: 100vh;
+            max-height: 800px;
+            background-color: #111;
+            overflow: hidden;
+            border: 2px solid #fff;
+        }
+
+        .character, .enemy {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+        }
+
+        .character {
+            bottom: 20px;
+            left: 275px;
+            background-image: url('baller.jpg');
+            background-size: cover;
+        }
+
+        .enemy {
+            top: 40px;
+            width: 100px;
+            height: 120px;
+            left: 275px;
+            background-image: url('sladge.jpg');
+            background-size: cover;
+        }
+
+        .bullet {
+            position: absolute;
+            width: 10px;
+            height: 20px;
+            background-color: yellow;
+        }
+
+        #message {
+            color: #fff;
+            text-align: center;
+            font-size: 20px;
+            display: none;
+        }
+
+        #fire-button {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #play-music-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div class="character" id="character"></div>
+        <div class="enemy" id="enemy"></div>
+        <div id="message">축하합니다! 상대를 물리쳤습니다. 코드: ABC123</div>
+        <button id="fire-button">발사</button>
+    </div>
+
+    <audio id="background-music" src="under_bg.mp3" loop></audio>
+    <button id="play-music-button" onclick="playMusic()">🎵 배경음악 재생</button>
+
+    <script>
+        const backgroundMusic = document.getElementById("background-music");
+
+        function playMusic() {
+            backgroundMusic.play()
+                .then(() => {
+                    document.getElementById("play-music-button").style.display = "none"; // 버튼 숨기기
+                })
+                .catch(error => {
+                    console.log("음악을 재생할 수 없습니다:", error);
+                });
+        }
+
+        const character = document.getElementById("character");
+        const enemy = document.getElementById("enemy");
+        const message = document.getElementById("message");
+        const gameContainer = document.getElementById("game-container");
+        const fireButton = document.getElementById("fire-button");
+
+        let characterX = 275;
+        let enemyX = 275;
+        let enemyHitCount = 0;
+        const characterSpeed = 10;
+        const bulletSpeed = 5;
+        let enemyIsBoosted = false;
+        let isInvincible = false;
+        let targetX = enemyX;
+        let enemySpeed = 5;
+
+        const hitCounterDisplay = document.createElement("div");
+        hitCounterDisplay.style.position = "absolute";
+        hitCounterDisplay.style.top = "10px";
+        hitCounterDisplay.style.right = "10px";
+        hitCounterDisplay.style.color = "#fff";
+        hitCounterDisplay.style.fontSize = "20px";
+        hitCounterDisplay.innerText = `Hits: ${enemyHitCount}/10`;
+        document.body.appendChild(hitCounterDisplay);
+
+        // 전역 변수로 선언해 추후 변경할 수 있도록 설정
+        let enemyShootInterval = setInterval(enemyShoot, 2000);
+
+        gameContainer.addEventListener("touchstart", (event) => {
+            const touchX = event.touches[0].clientX;
+            const gameWidth = gameContainer.offsetWidth;
+
+            if (touchX < gameWidth / 3 && characterX > 0) {
+                characterX -= characterSpeed;
+            } else if (touchX > (2 * gameWidth) / 3 && characterX < gameWidth - character.offsetWidth) {
+                characterX += characterSpeed;
+            }
+            character.style.left = `${characterX}px`;
+        });
+        function playHit() {
+            a = new Audio("attack.mp3")
+            a.play();
+        }
+        
+        function eneShot() {
+            b = new Audio("gaster.mp3")
+            b.play();
+        }
+
+
+        fireButton.addEventListener("click", fireBullet);
+
+        function enemyShoot() {
+            eneShot();
+            const bullet = document.createElement("div");
+            bullet.classList.add("bullet");
+            bullet.style.width = "20px";
+            bullet.style.height = "40px";
+            bullet.style.backgroundImage = "url('th.png')";
+            bullet.style.backgroundSize = "cover";
+            bullet.style.position = "absolute";
+            bullet.style.left = `${enemyX + enemy.offsetWidth / 2 - 10}px`;
+            bullet.style.top = `${enemy.offsetTop + enemy.offsetHeight}px`;
+            gameContainer.appendChild(bullet);
+
+            const bulletInterval = setInterval(() => {
+                const bulletY = parseInt(bullet.style.top);
+                if (bulletY >= gameContainer.offsetHeight) {
+                    bullet.remove();
+                    clearInterval(bulletInterval);
+                } else {
+                    bullet.style.top = `${bulletY + bulletSpeed}px`;
+
+                    const bulletRect = bullet.getBoundingClientRect();
+                    const characterRect = character.getBoundingClientRect();
+                    if (bulletRect.left < characterRect.right &&
+                        bulletRect.right > characterRect.left &&
+                        bulletRect.top < characterRect.bottom &&
+                        bulletRect.bottom > characterRect.top) {
+                        bullet.remove();
+                        clearInterval(bulletInterval);
+                        handleCharacterHit();
+                    }
+                }
+            }, 20);
+        }
+
+        function handleCharacterHit() {
+            alert("맞았구나 똥주원 나의 저주를 온몸으로 받아라");
+        }
+
+        function moveEnemy() {
+            if (enemyHitCount >= 10) {
+                enemy.style.display = "none";
+                message.style.display = "block";
+                message.innerText = "축하합니다! 똥주연을 물리쳤습니다! CODE: 올마이트킹주한";
+                clearInterval(enemyMoveInterval);
+                clearInterval(enemyShootInterval); // 적이 죽으면 발사 중지
+                return;
+            }
+
+            if (Math.abs(enemyX - targetX) < enemySpeed) {
+                targetX = Math.floor(Math.random() * (gameContainer.offsetWidth - enemy.offsetWidth));
+                enemyX = targetX;
+            }
+
+            if (enemyX < targetX) {
+                enemyX += enemySpeed;
+            } else if (enemyX > targetX) {
+                enemyX -= enemySpeed;
+            }
+
+            enemy.style.left = `${enemyX}px`;
+        }
+
+        const enemyMoveInterval = setInterval(moveEnemy, 50);
+
+        function fireBullet() {
+            const bullet = document.createElement("div");
+            bullet.classList.add("bullet");
+            bullet.style.left = `${characterX + character.offsetWidth / 2 - 5}px`;
+            bullet.style.bottom = "60px";
+            gameContainer.appendChild(bullet);
+
+            const bulletInterval = setInterval(() => {
+                const bulletY = parseInt(bullet.style.bottom);
+                if (bulletY >= gameContainer.offsetHeight) {
+                    bullet.remove();
+                    clearInterval(bulletInterval);
+                } else {
+                    bullet.style.bottom = `${bulletY + bulletSpeed}px`;
+
+                    const bulletRect = bullet.getBoundingClientRect();
+                    const enemyRect = enemy.getBoundingClientRect();
+                    if (bulletRect.left < enemyRect.right &&
+                        bulletRect.right > enemyRect.left &&
+                        bulletRect.top < enemyRect.bottom &&
+                        bulletRect.bottom > enemyRect.top) {
+                        bullet.remove();
+                        clearInterval(bulletInterval);
+                        handleEnemyHit();
+                    }
+                }
+            }, 20);
+        }
+
+        function handleEnemyHit() {
+            if (isInvincible) return;
+            playHit();
+            enemyHitCount++;
+            isInvincible = true;
+            hitCounterDisplay.innerText = `Hits: ${enemyHitCount}/10`;
+
+            setTimeout(() => {
+                isInvincible = false;
+            }, 1000);
+
+            if (enemyHitCount === 5) {
+                clearInterval(enemyMoveInterval);
+                clearInterval(enemyShootInterval); // 기존 공격 주기 중지
+                enemy.style.transform = "scale(1.5)";
+                enemySpeed = 3;
+                isInvincible = true;
+
+                setTimeout(() => {
+                    isInvincible = false;
+                    setInterval(moveEnemy, 20);
+
+                    // 5번 맞은 후 공격 주기를 500ms로 변경
+                    enemyShootInterval = setInterval(enemyShoot, 500);
+                }, 1000);
+            }
+
+            if (enemyHitCount >= 10) {
+                enemy.style.display = "none";
+                message.style.display = "block";
+                message.innerText = "축하합니다! 상대를 물리쳤습니다.";
+                clearInterval(enemyMoveInterval);
+                clearInterval(enemyShootInterval); // 적이 죽으면 발사 중지
+            }
+        }
+    </script>
+</body>
+</html>

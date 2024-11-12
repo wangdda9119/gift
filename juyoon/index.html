@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Index 페이지</title>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* 상단 큰 영역 스타일 */
+        .top-section {
+            display: flex;
+            flex: 2;
+        }
+
+        .left, .right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .left {
+            background-image: url('baller.jpg'); /* hero.html로 연결되는 이미지 */
+        }
+
+        .right {
+            background-image: url('skibidi.jpg'); /* vil.html로 연결되는 이미지 */
+        }
+
+        /* 하단 작은 영역 스타일 */
+        .bottom-section {
+            display: flex;
+            flex: 1;
+        }
+
+        .bottom-section div {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            background-size: cover;
+            background-position: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.6);
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .num1 {
+            background-image: url('among.jpg'); /* 첫 번째 num.html로 연결되는 이미지 */
+        }
+
+        .num2 {
+            background-image: url('num2.jpg'); /* 두 번째 num.html로 연결되는 이미지 */
+        }
+
+        .num3 {
+            background-image: url('num3.jpg'); /* 세 번째 num.html로 연결되는 이미지 */
+        }
+
+        /* 음악 재생 버튼 스타일 */
+        #play-music-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            z-index: 1000;
+        }
+    </style>
+</head>
+<body>
+    <audio id="background-music" src="among_bg.mp3" loop></audio>
+
+    <!-- 음악 재생 버튼 -->
+    <button id="play-music-button" onclick="playMusic()">🎵 배경음악 재생</button>
+
+    <script>
+        const backgroundMusic = document.getElementById("background-music");
+
+        // 음량 조절
+        backgroundMusic.volume = 0.5;
+
+        // 배경음악 재생 함수
+        function playMusic() {
+            backgroundMusic.play()
+                .then(() => {
+                    document.getElementById("play-music-button").style.display = "none"; // 버튼 숨기기
+                })
+                .catch(error => {
+                    console.log("음악을 재생할 수 없습니다:", error);
+                });
+        }
+    </script>
+
+    <div class="container">
+        <!-- 상단 큰 영역 -->
+        <div class="top-section">
+            <div class="left" onclick="window.location.href='hero.html'">
+                <h1><strong>미션 1</strong></h1>
+            </div>
+            <div class="right" onclick="window.location.href='vil.html'">
+                <h1><strong>미션 2</strong></h1>
+            </div>
+        </div>
+
+        <!-- 하단 작은 영역 -->
+        <div class="bottom-section">
+            <div class="num1" onclick="window.location.href='num.html'">
+                <h1><strong>CODE 입력</strong></h1>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
