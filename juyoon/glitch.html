@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glitch</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+            color: #0f0;
+            font-family: 'Courier New', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        img {
+            width: 150px;
+            height: auto;
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+
+        .prompt {
+            font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border: 2px solid #0f0;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            width: 80%;
+            max-width: 600px;
+            white-space: pre-wrap;
+        }
+
+        .typing {
+            display: inline-block;
+            white-space: pre-wrap;
+            overflow: hidden;
+            border-right: 2px solid #0f0;
+            animation: blink 0.7s steps(2, start) infinite;
+        }
+
+        @keyframes blink {
+            50% {
+                border-color: transparent;
+            }
+        }
+
+        .start-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            color: #0f0;
+            background-color: #000;
+            border: 2px solid #0f0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .start-button:hover {
+            background-color: #0f0;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+    <img src="gaster.jpg" alt="Glitch Image" id="image">
+    <div class="prompt">
+        <span id="text" class="typing"></span>
+    </div>
+    <button class="start-button" id="start-button">!!@NASD0xS</button>
+    <audio id="background-music" src="gaster_bgm.mp3" loop></audio>
+
+    <script>
+        const textElement = document.getElementById('text');
+        const textContent = `SYSTEM : 허용되지 않은 접근.. 자폭 프로토콜 가동
+
+???: 짧게 얘기하지 내가 부숴놓은 틈에 code-121117 을 입력해
+재밌을거야
+. . . 폭파`;
+        const startButton = document.getElementById('start-button');
+        const backgroundMusic = document.getElementById('background-music');
+
+        let index = 0;
+        let typingStarted = false;
+
+        function typeText() {
+            if (index < textContent.length) {
+                textElement.textContent += textContent.charAt(index);
+                index++;
+                setTimeout(typeText, 100); // 한 글자씩 100ms 간격으로 타이핑
+            }
+        }
+
+        startButton.addEventListener('click', () => {
+            if (!typingStarted) {
+                typingStarted = true;
+                startButton.style.display = 'none'; // 버튼 숨기기
+                backgroundMusic.play(); // 음악 재생
+                typeText();
+
+                setTimeout(() => {
+                    document.body.innerHTML = "<div style='color: red; font-size: 2rem; text-align: center;'>시스템이 종료되었습니다.<br> 얼쩡거리지마 애송이</div>";
+                }, 10000);
+            }
+        });
+    </script>
+</body>
+</html>
